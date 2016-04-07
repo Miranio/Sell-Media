@@ -506,40 +506,39 @@ function sell_media_before_delete_post( $postid, $attachment_id=null ){
      * Get the attachment/thumbnail file so we can replace the "original", i.e.
      * lower quality "original" with the file in the protected area.
      */
-    $attached_file = basename( get_attached_file( get_post_meta( $postid, '_sell_media_attachment_id', true ) ) );
-
-    if ( empty( $attachment_id ) ){
-        $attachment_id = get_post_meta( $postid, '_sell_media_attachment_id', true );
-    } else {
-        delete_post_meta( $attachment_id, '_sell_media_for_sale_product_id' );
-    }
-
-
-    delete_post_meta( $attachment_id, '_sell_media_for_sale_product_id' );
+    $post_meta_id = get_post_meta( $postid, '_sell_media_attachment_id', true );
+    $attached_file_array = explode(',',$post_meta_id);
 
     $wp_upload_dir = wp_upload_dir();
-    $attached_file_path = sell_media_get_upload_dir() . $wp_upload_dir['subdir'] . '/' . $attached_file;
+    $sell_media_upload_dir = sell_media_get_upload_dir() . $wp_upload_dir['subdir'] . '/';
+    $wp_media_upload_dir = $wp_upload_dir['basedir'] . $wp_upload_dir['subdir'] .  '/';
 
-    // Delete the file stored in sell_media
-    if ( file_exists( $attached_file_path ) ) {
+    foreach($attached_file_array as $attached_file_id){
 
-        /**
-         * Due to how WordPress handles attachments that are NOT
-         * images we check if the "_wp_attached_file" is in fact
-         * stored in the sell_media/ directory, i.e. there's only
-         * "one" copy of the attachment.
-         */
-        $pos = strpos( $attached_file, 'sell_media/' );
-        if ( $pos !== false ){
-            $attached_file = str_replace( 'sell_media/', '', $attached_file );
+        $attached_file = basename( get_attached_file( $attached_file_id ));
+        $attached_file_origin = $sell_media_upload_dir . $attached_file;
+
+        // Delete the file stored in sell_media
+        if ( file_exists( $attached_file_origin ) ) {
+
+            /**
+             * Due to how WordPress handles attachments that are NOT
+             * images we check if the "_wp_attached_file" is in fact
+             * stored in the sell_media/ directory, i.e. there's only
+             * "one" copy of the attachment.
+             */
+            $pos = strpos( $attached_file, 'sell_media/' );
+            if ( $pos !== false ){
+                $attached_file = str_replace( 'sell_media/', '', $attached_file );
+            }
+
+            $attached_file_destination = $wp_media_upload_dir . $attached_file;
+
+            // Copy our "original" back
+            @copy( $attached_file_origin, $attached_file_destination);
+            @unlink( $attached_file_origin );
+
         }
-
-        $attached_file_destination = $wp_upload_dir['basedir'] . $wp_upload_dir['subdir'] .  '/' . $attached_file;
-
-        // Copy our "original" back
-        @copy( $attached_file_path, $attached_file_destination);
-        @unlink( $attached_file_path );
-
     }
     return;
 }
