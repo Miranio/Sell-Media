@@ -48,4 +48,4 @@ Thumbs.db
 ########
 *.map
 .sass-cache
-/nbproject/private/
+/nbproject/
