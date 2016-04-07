@@ -506,7 +506,8 @@ function sell_media_before_delete_post( $postid, $attachment_id=null ){
      * Get the attachment/thumbnail file so we can replace the "original", i.e.
      * lower quality "original" with the file in the protected area.
      */
-    $attached_file = get_post_meta( $postid, '_sell_media_attached_file', true );
+    $attached_file = basename( get_attached_file( get_post_meta( $postid, '_sell_media_attachment_id', true ) ) );
+
     if ( empty( $attachment_id ) ){
         $attachment_id = get_post_meta( $postid, '_sell_media_attachment_id', true );
     } else {
@@ -516,7 +517,8 @@ function sell_media_before_delete_post( $postid, $attachment_id=null ){
 
     delete_post_meta( $attachment_id, '_sell_media_for_sale_product_id' );
 
-    $attached_file_path = sell_media_get_upload_dir() . '/' . $attached_file;
+    $wp_upload_dir = wp_upload_dir();
+    $attached_file_path = sell_media_get_upload_dir() . $wp_upload_dir['subdir'] . '/' . $attached_file;
 
     // Delete the file stored in sell_media
     if ( file_exists( $attached_file_path ) ) {
@@ -532,8 +534,10 @@ function sell_media_before_delete_post( $postid, $attachment_id=null ){
             $attached_file = str_replace( 'sell_media/', '', $attached_file );
         }
 
+        $attached_file_destination = $wp_upload_dir['basedir'] . $wp_upload_dir['subdir'] .  '/' . $attached_file;
+
         // Copy our "original" back
-        @copy( $attached_file_path, $wp_upload_dir['basedir'] . '/' . $attached_file );
+        @copy( $attached_file_path, $attached_file_destination);
         @unlink( $attached_file_path );
 
     }
