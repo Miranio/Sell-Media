@@ -160,7 +160,9 @@ function sell_media_item_icon( $post_id=null, $size='medium', $echo=true ){
 
 		$image =  '<img src="' . $src . '" class="'. apply_filters( 'sell_media_image_class', 'sell_media_image' ) . ' wp-post-image" title="' . get_the_title( $post_id ) . '" alt="' . get_the_title( $post_id ) . '" data-sell_media_medium_url="' . $src . '" data-sell_media_large_url="' . $src . '" data-sell_media_item_id="' . $post_id . '" style="max-width:100%;height:auto;"/>';
 	}
-
+        if (is_singular()){
+            $image = '<a href="'. $src . '">' . $image . '</a>';
+        }
 	if ( $echo )
 		echo $image;
 	else

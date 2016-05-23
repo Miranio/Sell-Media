@@ -57,7 +57,7 @@ Class SellMediaProducts {
             $prices[$i]['id'] = 'original';
             $prices[$i]['name'] = __( 'Original', 'sell_media' );
             $prices[$i]['description'] = __( 'The original high resolution source file', 'sell_media' );
-            $prices[$i]['price'] = $this->get_price( $post_id, 'original' );
+            $prices[$i]['price'] = $this->get_price( $post_id, null, 'original' );
             $prices[$i]['width'] = $original_size['original']['width'];
             $prices[$i]['height'] = $original_size['original']['height'];
         }
